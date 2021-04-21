@@ -11,9 +11,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
-    restart: always
+    # restart: always
     ports: ["5432:5432"]
-    restart: always
     volumes:
     - db_data:/var/lib/postgresql/data
     ports: ["5432:5432"]
@@ -24,49 +23,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    restart: always
+    # restart: always
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://docker:docker@db:5432/docker
+      HASURA_GRAPHQL_DATABASE_URL: postgres://docker:${OCAML_BENCH_DB_PASSWORD?required}@db:5432/docker
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_ADMIN_SECRET: ${OCAML_BENCH_GRAPHQL_KEY?required}
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "public"
-    volumes:
-      - ../hasura-server/metadata:/hasura-metadata
-  frontend:
-    build: 
-      context: ../frontend
-      args:
-        VITE_GRAPHQL_URL: ${VITE_GRAPHQL_URL?required}
-    ports:
-    - "80:80"
-    restart: always
-    depends_on:
-    - "graphql-engine"
-  pipeline:
-    build:
-      context: ../pipeline
-      args:
-        TARGET_ARCH: ${OCAML_BENCH_TARGET_ARCH?required}
-    volumes:
-    - pipeline_var:/app/var
-    - /var/run/docker.sock:/var/run/docker.sock
-    ports: ["8081:8081"]
-    command:
-    - "current-bench-pipeline"
-    - "github_app"
-    - "--verbosity=debug"
-    - "--port=8081"
-    - "--docker-cpu=${OCAML_BENCH_DOCKER_CPU}"
-    - "--conn-info=host=db user=docker port=5432 dbname=docker password=${OCAML_BENCH_DB_PASSWORD?required}"
-    - "--github-app-id=${OCAML_BENCH_GITHUB_APP_ID}"
-    - "--github-account-allowlist=${OCAML_BENCH_GITHUB_ACCOUNT_ALLOW_LIST?required}"
-    - "--github-private-key-file=${OCAML_BENCH_GITHUB_PRIVATE_KEY_FILE?required}"
-    restart: always
-    depends_on:
-      db:
-        condition: service_healthy
-
 volumes:
   db_data:
-  pipeline_var:
