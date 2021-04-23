@@ -1,4 +1,4 @@
-let url: string = %raw(`import.meta.env.VITE_GRAPHQL_URL`)
+let url: string = "https://current-bench.herokuapp.com/v1/graphql"
 
 let client = ReScriptUrql.Client.make(~url, ())
 
