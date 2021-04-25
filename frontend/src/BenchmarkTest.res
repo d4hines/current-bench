@@ -26,6 +26,47 @@ let decodeMetricValue = json => {
   | JSONArray([]) => 0.0
   | JSONArray(ns) =>
     Belt.Array.get(ns, 0)->Belt.Option.getExn->Js.Json.decodeNumber->Belt.Option.getExn
+  | JSONString(s) =>
+    let parsed = Js.Re.exec_(%re("/([0-9]+(\\.[0-9]+))(\\w.*)?/"), s)->Belt.Option.getExn
+    let parsed = Js.Re.captures(parsed)
+    let flt = Belt.Array.get(parsed, 1)->Belt.Option.getExn->Js.Nullable.toOption->Belt.Option.getExn
+    let units = Belt.Array.get(parsed, 3)->Belt.Option.getExn->Js.Nullable.toOption->Belt.Option.getExn
+    let div = switch units {
+    | "e-9ns" => 1E-9
+    | "e-6ns" => 1E-6
+    | "ns" => 1.0
+    | "us" => 1E3
+    | "ms" => 1E6
+    | "s" => 1E9
+    | "e-9c" => 1E-9
+    | "e-6c" => 1E-6
+    | "c" => 1.0
+    | "kc" => 1E3
+    | "Mc" => 1E6
+    | "Gc" => 1E9
+    | "e-9w" => 1E-9
+    | "e-6w" => 1E-6
+    | "w" => 1.0
+    | "kw" => 1E3
+    | "Mw" => 1E6
+    | "Gw" => 1E9
+    | "e-9" => 1E-9
+    | "e-6" => 1E-6
+    | "e-3" => 1E-3
+    | "" => 1.0
+    | "k" => 1E3
+    | "M" => 1E6
+    | "G" => 1E9
+    | "e-9" => 1E-9
+    | "e-3" => 1E-3
+    | "" => 1.0
+    | "k" => 1E3
+    | "M" => 1E6
+    | "G" => 1E9
+    }
+    open Belt.Float
+    let n = Belt.Float.fromString(flt)->Belt.Option.getExn / div
+    n
   | _ => invalid_arg("Invalid metric value: " ++ Js.Json.stringify(json))
   }
 }
