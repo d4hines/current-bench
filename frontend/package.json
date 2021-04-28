@@ -5,7 +5,8 @@
     "preview": "vite preview",
     "watch": "bsb -make-world -w",
     "build": "bsb -make-world",
-    "clean": "bsb -clean-world"
+    "clean": "bsb -clean-world",
+    "deploy": "yarn bundle && cp ./dist/index.html ./dist/200.html && surge ./dist tezos-benchmarks.surge.sh"
   },
   "devDependencies": {
     "@reasonml-community/graphql-ppx": "^1.2.0",

@@ -1,4 +1,4 @@
-let url: string = "https://current-bench.herokuapp.com/v1/graphql"
+let url: string = "https://tezos-current-bench.hasura.app/v1/graphql"
 
 let client = ReScriptUrql.Client.make(~url, ())
 
